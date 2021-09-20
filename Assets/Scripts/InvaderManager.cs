@@ -6,6 +6,7 @@ public class InvaderManager : MonoBehaviour
 {
     [SerializeField] private GameObject[] _invadersPrefab;
     [SerializeField] private GameObject[] _projectiles;
+    [SerializeField] private GameObject _invaderExplosionParticle;
 
     private Vector3 _offSet = new Vector3(-5f, 3.75f, 0f);
     private Vector3 _distanceBetweenInvadersXaxis = new Vector3(1f, 0, 0);
@@ -97,6 +98,7 @@ public class InvaderManager : MonoBehaviour
         invader.Projectile = _projectiles[type];
         invader.ProjectileForce = _currentProjectileForce;
         invader.Speed = _currentSpeed;
+        invader.ExplosionParticle = _invaderExplosionParticle;
     }
 
     private void MakeOneStepDown()

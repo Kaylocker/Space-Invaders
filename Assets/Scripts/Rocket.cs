@@ -31,9 +31,7 @@ public class Rocket : MonoBehaviour
         if (invader!=null)
         {
             _ship.HittingInvader();
-            invader.InvaderDestroyed();
             Destroy(gameObject);
-            Destroy(collision.gameObject);
             return;
         }
 

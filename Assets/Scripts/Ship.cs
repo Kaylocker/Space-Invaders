@@ -4,22 +4,22 @@ using UnityEngine.UI;
 
 public class Ship : MonoBehaviour, IShootable
 {
+    [SerializeField] private GameObject _scoreManagerGameobject;
     [SerializeField] private GameObject _rocket;
-    [SerializeField] private Text _scoreText;
     [SerializeField] private Text _shipLivesText;
 
     private Vector3 _position;
+    private ScoreManager _scoreManagerComponent;
     private Rigidbody2D _rigidBody;
     private float _limitDistance = 9f;
     private float _reloadTime = 0.5f, _speed = 600f;
     private bool _canFire = true;
-    private int _shipLives = 3, _score = 0;
-    private const int SCORE_FOR_TARGET = 100;
+    private int _shipLives = 3;
 
     private void Start()
     {
         _rigidBody = GetComponent<Rigidbody2D>();
-        ShowScoreInformation();
+        _scoreManagerComponent = _scoreManagerGameobject.GetComponent<ScoreManager>();
         ShowLivesInformation();
     }
 
@@ -78,28 +78,22 @@ public class Ship : MonoBehaviour, IShootable
 
     public void HittingInvader()
     {
-        _score += SCORE_FOR_TARGET;
-        ShowScoreInformation();
+        _scoreManagerComponent.CollectScore();
     }
 
-    private void HittingShip(GameObject gameObject)
+    private void HittingShip(GameObject projectile)
     {
-        Destroy(gameObject);
+        Destroy(projectile);
         _shipLives--;
 
-        if (_shipLives > 0)
+        if (_shipLives <= 0)
         {
-            ShowLivesInformation();
+            _shipLives = 0;
+            PlayerPrefs.Save();
+            Destroy(gameObject);
         }
-        else
-        {
-            Destroy(this);
-        }
-    }
 
-    private void ShowScoreInformation()
-    {
-        _scoreText.text = "SCORE: " + _score;
+        ShowLivesInformation();
     }
 
     private void ShowLivesInformation()
@@ -122,6 +116,4 @@ public class Ship : MonoBehaviour, IShootable
             HittingShip(collision.gameObject);
         }
     }
-
-
 }

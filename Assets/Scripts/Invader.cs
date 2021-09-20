@@ -3,6 +3,7 @@ using UnityEngine;
 public class Invader : MonoBehaviour, IShootable
 {
     private InvaderManager _invaderManager;
+    private GameObject _explosionParticle;
     private GameObject _projectile;
     private Vector3 _position;
     private Vector3 _currentDirection;
@@ -40,7 +41,6 @@ public class Invader : MonoBehaviour, IShootable
     }
     public float Speed
     {
-        get => _speed;
         set
         {
             if (_speed == 0 && value>0)
@@ -52,7 +52,6 @@ public class Invader : MonoBehaviour, IShootable
     }
     public float ProjectileForce
     {
-        get => _projectileForce;
         set
         {
             if (_projectileForce == 0 && value>0)
@@ -61,6 +60,17 @@ public class Invader : MonoBehaviour, IShootable
             }
         }
 
+    }
+
+    public GameObject ExplosionParticle 
+    {
+        set
+        {
+            if (_explosionParticle == null)
+            {
+                _explosionParticle = value;
+            }
+        }
     }
 
     private void Awake()
@@ -96,16 +106,23 @@ public class Invader : MonoBehaviour, IShootable
         }
     }
 
-    public void InvaderDestroyed()
-    {
-        _invaderManager.RemoveDestroyedInviderFromList(_id);
-    }
-
     public void Shoot()
     {
         GameObject projectile = Instantiate(_projectile, _position, Quaternion.identity);
         Rigidbody2D rocketRigidBody = projectile.GetComponent<Rigidbody2D>();
         rocketRigidBody.AddRelativeForce(Vector2.down * _projectileForce);
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        Rocket rocket = collision.gameObject.GetComponent<Rocket>();
+
+        if (rocket != null)
+        {
+            _invaderManager.RemoveDestroyedInviderFromList(_id);
+            Instantiate(_explosionParticle, transform.position, Quaternion.identity);
+            Destroy(gameObject);
+        }
     }
 }
 
