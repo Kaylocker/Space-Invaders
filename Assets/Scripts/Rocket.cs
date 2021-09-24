@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 
 public class Rocket : MonoBehaviour
 {
@@ -39,9 +40,9 @@ public class Rocket : MonoBehaviour
 
         if (invaderProjectile!=null)
         {
+            _ship.HittingProjectile();
             Destroy(gameObject);
             Destroy(collision.gameObject);
         }
-
     }
 }

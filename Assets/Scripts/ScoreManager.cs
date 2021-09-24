@@ -6,8 +6,12 @@ public class ScoreManager : MonoBehaviour
     [SerializeField] private Text _scoreText;
     [SerializeField] private Text _highScoreText;
 
+    private Ship _ship;
     private const int SCORE_FOR_TARGET = 100;
     private int _score, _highScore;
+
+    public int Score { get => _score; }
+    public int HighScore { get => _highScore; }
 
     private void Awake()
     {
@@ -16,9 +20,21 @@ public class ScoreManager : MonoBehaviour
         ShowScoreInformation();
     }
 
-    public void CollectScore()
+    private void Start()
+    {
+        _ship = FindObjectOfType<Ship>();
+        _ship.OnHittedEnemy += CollectScore;
+    }
+
+    private void OnDisable()
+    {
+        _ship.OnHittedEnemy -= CollectScore;
+    }
+
+    private void CollectScore()
     {
         _score += SCORE_FOR_TARGET;
+        ShowScoreInformation();
 
         if (_score > _highScore)
         {
@@ -26,7 +42,6 @@ public class ScoreManager : MonoBehaviour
             PlayerPrefs.SetInt("High Score", _highScore);
         }
 
-        ShowScoreInformation();
     }
 
     private void ShowScoreInformation()

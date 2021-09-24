@@ -3,8 +3,7 @@ using UnityEngine;
 public class Invader : MonoBehaviour, IShootable
 {
     private InvaderManager _invaderManager;
-    private GameObject _explosionParticle;
-    private GameObject _projectile;
+    private GameObject _explosionParticle, _projectile;
     private Vector3 _position;
     private Vector3 _currentDirection;
     private float _speed = 0, _limit, _projectileForce = 0;
@@ -30,6 +29,16 @@ public class Invader : MonoBehaviour, IShootable
             if (_projectile == null)
             {
                 _projectile = value;
+            }
+        }
+    }
+    public GameObject ExplosionParticle
+    {
+        set
+        {
+            if (_explosionParticle == null)
+            {
+                _explosionParticle = value;
             }
         }
     }
@@ -60,17 +69,6 @@ public class Invader : MonoBehaviour, IShootable
             }
         }
 
-    }
-
-    public GameObject ExplosionParticle 
-    {
-        set
-        {
-            if (_explosionParticle == null)
-            {
-                _explosionParticle = value;
-            }
-        }
     }
 
     private void Awake()
@@ -120,8 +118,9 @@ public class Invader : MonoBehaviour, IShootable
         if (rocket != null)
         {
             _invaderManager.RemoveDestroyedInviderFromList(_id);
-            Instantiate(_explosionParticle, transform.position, Quaternion.identity);
+            GameObject explosionParticle = Instantiate(_explosionParticle, transform.position, Quaternion.identity);
             Destroy(gameObject);
+            Destroy(explosionParticle, explosionParticle.gameObject.GetComponent<ParticleSystem>().main.startLifetime.constantMax);
         }
     }
 }

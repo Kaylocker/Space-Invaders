@@ -1,9 +1,11 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System.Collections;
+using System;
 
 public class InvaderManager : MonoBehaviour
 {
+    public event Action OnShoot;
+
     [SerializeField] private GameObject[] _invadersPrefab;
     [SerializeField] private GameObject[] _projectiles;
     [SerializeField] private GameObject _invaderExplosionParticle;
@@ -20,7 +22,7 @@ public class InvaderManager : MonoBehaviour
     private const float START_PROJECTILE_FORCE = 100f, START_SPEED = 1f;
     private float _timeStartShooting = 2f, _repeatTimeShoot = 3.5f;
     private float _currentProjectileForce, _currentSpeed;
-    private float _lefelUpForce = 10f, _levelUpSpeed = 0.1f;
+    private float _levelUpForce = 10f, _levelUpSpeed = 0.1f;
 
     public List<Invader> Invaders { get => _invadersComponents; }
 
@@ -103,11 +105,12 @@ public class InvaderManager : MonoBehaviour
 
     private void MakeOneStepDown()
     {
+        float lerpValue = 1f;
+
         foreach (GameObject item in _invadersGameObject)
         {
-            item.transform.position -= new Vector3(transform.position.x, Mathf.Lerp(transform.position.y, transform.position.y + _distanceBetweenInvadersYaxis.y, 1f), transform.position.z);
+            item.transform.position -= new Vector3(transform.position.x, Mathf.Lerp(transform.position.y, transform.position.y + _distanceBetweenInvadersYaxis.y, lerpValue), transform.position.z);
         }
-
     }
 
     public void RemoveDestroyedInviderFromList(int id)
@@ -128,7 +131,6 @@ public class InvaderManager : MonoBehaviour
 
             counter++;
         }
-
     }
 
     private void Shooting()
@@ -139,14 +141,15 @@ public class InvaderManager : MonoBehaviour
             return;
         }
 
-        int indexCurrentInvader = Random.Range(0, _invadersGameObject.Count);
+        int indexCurrentInvader = UnityEngine.Random.Range(0, _invadersGameObject.Count);
 
         _invadersComponents[indexCurrentInvader].Shoot();
+        OnShoot?.Invoke();
     }
 
     private void ResetInvadersGroup()
     {
-        _currentProjectileForce += _lefelUpForce;
+        _currentProjectileForce += _levelUpForce;
         _currentSpeed += _levelUpSpeed;
         SpawnInvaders();
     }

@@ -1,5 +1,4 @@
-﻿
-namespace UnityEngine
+﻿namespace UnityEngine
 
 {
     public interface IShootable

@@ -1,31 +1,35 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.UI;
+using System;
 
 public class Ship : MonoBehaviour, IShootable
 {
-    [SerializeField] private GameObject _scoreManagerGameobject;
-    [SerializeField] private GameObject _rocket;
-    [SerializeField] private Text _shipLivesText;
+    public event Action OnGetHitted;
+    public event Action OnShoot;
+    public event Action OnHittedEnemy;
+    public event Action OnDied;
+    public event Action OnHittedProjectile;
 
-    private Vector3 _position;
-    private ScoreManager _scoreManagerComponent;
+    [SerializeField] private GameObject _rocket;
+
     private Rigidbody2D _rigidBody;
+    private Vector3 _position;
     private float _limitDistance = 9f;
-    private float _reloadTime = 0.5f, _speed = 600f;
+    private float _reloadTime = 0.3f, _speed = 600f;
     private bool _canFire = true;
-    private int _shipLives = 3;
+    private int _lives = 3;
+
+    public int Lives { get => _lives; }
 
     private void Start()
     {
         _rigidBody = GetComponent<Rigidbody2D>();
-        _scoreManagerComponent = _scoreManagerGameobject.GetComponent<ScoreManager>();
-        ShowLivesInformation();
     }
 
     private void Update()
     {
         Shoot();
+        CheckDeath();
     }
 
     private void FixedUpdate()
@@ -60,11 +64,22 @@ public class Ship : MonoBehaviour, IShootable
         transform.position = _position;
     }
 
+    private void CheckDeath()
+    {
+        if (_lives <= 0)
+        {
+            OnDied?.Invoke();
+            Destroy(gameObject);
+        }
+    }
+
     public void Shoot()
     {
         if (Input.GetKeyDown(KeyCode.Space) && _canFire)
         {
             _canFire = false;
+
+            OnShoot?.Invoke();
 
             GameObject rocketGameObject = Instantiate(_rocket, _position, Quaternion.identity);
             Rocket rocket = rocketGameObject.gameObject.GetComponent<Rocket>();
@@ -78,30 +93,27 @@ public class Ship : MonoBehaviour, IShootable
 
     public void HittingInvader()
     {
-        _scoreManagerComponent.CollectScore();
+        OnHittedEnemy?.Invoke();
     }
 
-    private void HittingShip(GameObject projectile)
+    public void HittingProjectile()
     {
-        Destroy(projectile);
-        _shipLives--;
+        OnHittedProjectile?.Invoke();
+    }
 
-        if (_shipLives <= 0)
+    private void HittingShip()
+    {
+        _lives--;
+
+        if(_lives <= 0)
         {
-            _shipLives = 0;
-            PlayerPrefs.Save();
-            Destroy(gameObject);
+            _lives = 0;
         }
 
-        ShowLivesInformation();
+        OnGetHitted?.Invoke();
     }
 
-    private void ShowLivesInformation()
-    {
-        _shipLivesText.text = "SHIP  LIVES: " + _shipLives;
-    }
-
-    IEnumerator Reload()
+    private IEnumerator Reload()
     {
         yield return new WaitForSeconds(_reloadTime);
         _canFire = true;
@@ -113,7 +125,18 @@ public class Ship : MonoBehaviour, IShootable
 
         if (invaderProjectile != null)
         {
-            HittingShip(collision.gameObject);
+            HittingShip();
+            Destroy(collision.gameObject);
+            return;
+        }
+
+        Invader invader = collision.gameObject.GetComponent<Invader>();
+
+        if (invader != null)
+        {
+            _lives = 0;
+            OnDied?.Invoke();
+            Destroy(gameObject);
         }
     }
 }
