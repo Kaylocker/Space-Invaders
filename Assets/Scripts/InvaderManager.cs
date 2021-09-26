@@ -5,6 +5,8 @@ using System;
 public class InvaderManager : MonoBehaviour
 {
     public event Action OnShoot;
+    public event Action<Vector3> OnChangeDirection;
+    public event Action<Vector3> OnMakeStepDown;
 
     [SerializeField] private GameObject[] _invadersPrefab;
     [SerializeField] private GameObject[] _projectiles;
@@ -20,7 +22,7 @@ public class InvaderManager : MonoBehaviour
     private List<Invader> _invadersComponents;
     private const int COLUMN = 10, ROW = 4;
     private const float START_PROJECTILE_FORCE = 100f, START_SPEED = 1f;
-    private float _timeStartShooting = 2f, _repeatTimeShoot = 3.5f;
+    private float _timeToStartShooting = 2f, _repeatTimeShoot = 3.5f;
     private float _currentProjectileForce, _currentSpeed;
     private float _levelUpForce = 10f, _levelUpSpeed = 0.1f;
 
@@ -35,7 +37,7 @@ public class InvaderManager : MonoBehaviour
 
     private void Start()
     {
-        InvokeRepeating("Shooting", _timeStartShooting, _repeatTimeShoot);
+        InvokeRepeating("Shooting", _timeToStartShooting, _repeatTimeShoot);
     }
 
     private void SpawnInvaders()
@@ -45,6 +47,7 @@ public class InvaderManager : MonoBehaviour
 
         Vector3 spawnPosition = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width / 2, Screen.height / 2, 10f));
         Vector3 currentPosition;
+
         spawnPosition += _offSet;
 
         int counter = 0;
@@ -71,27 +74,6 @@ public class InvaderManager : MonoBehaviour
         }
     }
 
-    public void SetNewDirection(Vector3 currentDirection)
-    {
-        if (currentDirection == _rightDirection)
-        {
-            foreach (Invader item in _invadersComponents)
-            {
-                item.CurrentDirection = _leftDirection;
-            }
-        }
-
-        if (currentDirection == _leftDirection)
-        {
-            foreach (Invader item in _invadersComponents)
-            {
-                item.CurrentDirection = _rightDirection;
-            }
-        }
-
-        MakeOneStepDown();
-    }
-
     private void SetInvaderSetting(Invader invader, int id, int type)
     {
         invader.InvaderManager = this;
@@ -103,14 +85,27 @@ public class InvaderManager : MonoBehaviour
         invader.ExplosionParticle = _invaderExplosionParticle;
     }
 
+    public void SetNewDirection(Vector3 currentDirection)
+    {
+        if (currentDirection == _rightDirection)
+        {
+            OnChangeDirection?.Invoke(_leftDirection);
+        }
+        else if (currentDirection == _leftDirection)
+        {
+            OnChangeDirection?.Invoke(_rightDirection);
+        }
+
+        MakeOneStepDown();
+    }
+
     private void MakeOneStepDown()
     {
         float lerpValue = 1f;
 
-        foreach (GameObject item in _invadersGameObject)
-        {
-            item.transform.position -= new Vector3(transform.position.x, Mathf.Lerp(transform.position.y, transform.position.y + _distanceBetweenInvadersYaxis.y, lerpValue), transform.position.z);
-        }
+        Vector3 newPosition = new Vector3(transform.position.x, Mathf.Lerp(transform.position.y, transform.position.y + _distanceBetweenInvadersYaxis.y, lerpValue), transform.position.z);
+
+        OnMakeStepDown?.Invoke(newPosition);
     }
 
     public void RemoveDestroyedInviderFromList(int id)

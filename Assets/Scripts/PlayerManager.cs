@@ -5,12 +5,13 @@ public class PlayerManager : MonoBehaviour
 {
     [SerializeField] GameObject _shipPrefab;
     [SerializeField] Text _shipLivesText;
-    [SerializeField] GameObject _gameOver;
 
     private Ship _ship;
     private GameObject _shipGameObject;
     private Vector3 _startPosition = new Vector3(0f, -3.3f, 0f);
+
     public Ship Ship { get => _ship; }
+
     private void Awake()
     {
         _shipGameObject = Instantiate(_shipPrefab, _startPosition, Quaternion.identity);

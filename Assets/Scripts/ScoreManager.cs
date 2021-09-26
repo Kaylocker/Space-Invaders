@@ -34,6 +34,7 @@ public class ScoreManager : MonoBehaviour
     private void CollectScore()
     {
         _score += SCORE_FOR_TARGET;
+
         ShowScoreInformation();
 
         if (_score > _highScore)
@@ -41,7 +42,6 @@ public class ScoreManager : MonoBehaviour
             _highScore = _score;
             PlayerPrefs.SetInt("High Score", _highScore);
         }
-
     }
 
     private void ShowScoreInformation()
@@ -49,5 +49,4 @@ public class ScoreManager : MonoBehaviour
         _scoreText.text = "SCORE: " + _score;
         _highScoreText.text = "HIGH  SCORE:" + _highScore;
     }
-
 }

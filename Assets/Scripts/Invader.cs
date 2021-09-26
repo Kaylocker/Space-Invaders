@@ -12,6 +12,8 @@ public class Invader : MonoBehaviour, IShootable
     public Vector3 CurrentDirection { get => _currentDirection; set => _currentDirection = value; }
     public InvaderManager InvaderManager
     {
+        get => _invaderManager;
+
         set
         {
             if (_invaderManager == null)
@@ -42,17 +44,14 @@ public class Invader : MonoBehaviour, IShootable
             }
         }
     }
-    public int ID
-    {
-        get => _id;
-
-        set => _id = value;
-    }
+    public int ID { get => _id; set => _id = value; }
     public float Speed
     {
+        get => _speed;
+
         set
         {
-            if (_speed == 0 && value>0)
+            if (_speed == 0 && value > 0)
             {
                 _speed = value;
             }
@@ -61,9 +60,11 @@ public class Invader : MonoBehaviour, IShootable
     }
     public float ProjectileForce
     {
+        get => _projectileForce;
+
         set
         {
-            if (_projectileForce == 0 && value>0)
+            if (_projectileForce == 0 && value > 0)
             {
                 _projectileForce = value;
             }
@@ -74,6 +75,18 @@ public class Invader : MonoBehaviour, IShootable
     private void Awake()
     {
         GetLimitAxis();
+    }
+
+    private void Start()
+    {
+        _invaderManager.OnChangeDirection += ChangeDirection;
+        _invaderManager.OnMakeStepDown += MakeStepDown;
+    }
+
+    private void OnDisable()
+    {
+        _invaderManager.OnChangeDirection -= ChangeDirection;
+        _invaderManager.OnChangeDirection -= MakeStepDown;
     }
 
     private void FixedUpdate()
@@ -101,6 +114,19 @@ public class Invader : MonoBehaviour, IShootable
         if (transform.position.x >= _limit || transform.position.x <= -_limit)
         {
             _invaderManager.SetNewDirection(_currentDirection);
+        }
+    }
+
+    private void ChangeDirection(Vector3 direction)
+    {
+        _currentDirection = direction;
+    }
+
+    private void MakeStepDown(Vector3 newPosition)
+    {
+        if (this != null)
+        {
+            transform.position -= newPosition;
         }
     }
 

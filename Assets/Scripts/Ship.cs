@@ -15,7 +15,7 @@ public class Ship : MonoBehaviour, IShootable
     private Rigidbody2D _rigidBody;
     private Vector3 _position;
     private float _limitDistance = 9f;
-    private float _reloadTime = 0.3f, _speed = 600f;
+    private float _reloadTime = 0.3f, _speed = 600f, _rocketForce = 500f;
     private bool _canFire = true;
     private int _lives = 3;
 
@@ -84,7 +84,7 @@ public class Ship : MonoBehaviour, IShootable
             GameObject rocketGameObject = Instantiate(_rocket, _position, Quaternion.identity);
             Rocket rocket = rocketGameObject.gameObject.GetComponent<Rocket>();
             Rigidbody2D rocketRigidBody = rocketGameObject.GetComponent<Rigidbody2D>();
-            rocketRigidBody.AddRelativeForce(Vector2.up*500);
+            rocketRigidBody.AddRelativeForce(Vector2.up* _rocketForce);
             rocket.Ship = this;
 
             StartCoroutine(Reload());
